@@ -34,13 +34,19 @@ def lambda_handler(event: dict, context: LambdaContext):
         ContentType="text/markdown",
     )
 
-    generate_index.generate_index(output_s3_bucket)
+    index_md_str = generate_index.generate_index(output_s3_bucket)
+    s3.put_object(
+        Bucket=output_s3_bucket,
+        Key=f"topics/topics.md",
+        Body=index_md_str,
+        ContentType="text/markdown",
+    )
 
 
 if __name__ == "__main__":
     # テスト実行用のコードです。
     # cd app/readinglist2md
-    # PYTHONPATH=. python readinglist2md/functions/convert_readinglist2md_function.py --output-s3-bucket "www.inoue-kobo.com" --database-id "NOTION_DATABASE_ID" --target-datetime "2024-11-09T15:00:00.000Z" --window-days 7
+    # PYTHONPATH=. python readinglist2md/functions/convert_readinglist2md_function.py --output-s3-bucket "www.inoue-kobo.com" --database-id "NOTION_DATABASE_ID" --target-datetime "2024-11-09T15:00:00Z" --window-days 7
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-s3-bucket", required=True)
     parser.add_argument("--database-id", required=True)
