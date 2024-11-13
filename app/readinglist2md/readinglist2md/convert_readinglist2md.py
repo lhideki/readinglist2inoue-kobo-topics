@@ -9,7 +9,9 @@ load_dotenv(verbose=True)
 notion = Client(auth=os.environ["NOTION_API_KEY"])
 
 
-def _get_unshared_reading_list(database_id: str, from_date: datetime):
+def _get_unshared_reading_list(
+    database_id: str, from_datetime: datetime, to_datetime: datetime
+):
     response = notion.databases.query(
         **{
             "database_id": database_id,
@@ -43,14 +45,18 @@ def _get_unshared_reading_list(database_id: str, from_date: datetime):
             ),
         }
 
-        if entry["作成日時"] >= from_date:
+        if entry["作成日時"] >= from_datetime and entry["作成日時"] < to_datetime:
             entries.append(entry)
 
     return entries
 
 
-def convert_readinglist2md(database_id: str, from_date: datetime) -> str:
-    unshared_reading_list = _get_unshared_reading_list(database_id, from_date)
+def convert_readinglist2md(
+    database_id: str, from_datetime: datetime, to_datetime: datetime
+) -> str:
+    unshared_reading_list = _get_unshared_reading_list(
+        database_id, from_datetime, to_datetime
+    )
 
     if len(unshared_reading_list) == 0:
         return ""
@@ -60,13 +66,13 @@ def convert_readinglist2md(database_id: str, from_date: datetime) -> str:
     markdown_strs = []
     markdown_strs.append(
         f"""---
-title: {from_date.strftime("%Y-%m-%d")} Topics
-date: {from_date.strftime("%Y-%m-%d")}
+title: {to_datetime.strftime("%Y-%m-%d")} Topics
+date: {to_datetime.strftime("%Y-%m-%d")}
 toc: true
 author: false
 ---
 
-# {from_date.strftime("%Y-%m-%d")} Topics
+# {to_datetime.strftime("%Y-%m-%d")} Topics
 """
     )
     for i, group in enumerate(unshared_reading_list_df.groupby("カテゴリ")):

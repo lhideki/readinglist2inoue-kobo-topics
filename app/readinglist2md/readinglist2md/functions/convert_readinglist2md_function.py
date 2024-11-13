@@ -18,18 +18,18 @@ def lambda_handler(event: dict, context: LambdaContext):
     from_datetime = target_datetime - timedelta(days=int(window_days))
 
     markdown_str = convert_readinglist2md.convert_readinglist2md(
-        database_id, from_datetime
+        database_id, from_datetime, target_datetime
     )
 
     if len(markdown_str) == 0:
         return
 
-    from_date_str = from_datetime.strftime("%Y-%m-%d")
+    target_datetime_str = target_datetime.strftime("%Y-%m-%d")
 
     s3 = boto3.client("s3")
     s3.put_object(
         Bucket=output_s3_bucket,
-        Key=f"topics/topics/{from_date_str}/index.md",
+        Key=f"topics/topics/{target_datetime_str}/index.md",
         Body=markdown_str,
         ContentType="text/markdown",
     )
