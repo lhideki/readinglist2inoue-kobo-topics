@@ -45,8 +45,12 @@ def _get_unshared_reading_list(
             ),
         }
 
-        if entry["作成日時"] >= from_datetime and entry["作成日時"] < to_datetime:
-            entries.append(entry)
+        if page["properties"]["非公開"]["checkbox"]:
+            continue
+        if not (entry["作成日時"] >= from_datetime and entry["作成日時"] < to_datetime):
+            continue
+
+        entries.append(entry)
 
     return entries
 
