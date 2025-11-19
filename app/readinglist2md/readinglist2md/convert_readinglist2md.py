@@ -6,16 +6,21 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv(verbose=True)
-notion = Client(auth=os.environ["NOTION_API_KEY"])
+notion = Client(auth=os.environ["NOTION_API_KEY"], notion_version="2022-06-28")
 
 
 def _get_unshared_reading_list(
     database_id: str, from_datetime: datetime, to_datetime: datetime
 ):
-    response = notion.databases.query(
-        **{
-            "database_id": database_id,
-        }
+    response = notion.request(
+        path=f"databases/{database_id}/query",
+        method="POST",
+        body={
+            "filter": {
+                "property": "作成日時",
+                "date": {"on_or_after": from_datetime.isoformat()},
+            }
+        },
     )
 
     entries = []
